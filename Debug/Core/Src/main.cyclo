@@ -1,0 +1,16 @@
+../Drivers/CMSIS/Include/core_cm33.h:2127:22:__NVIC_EnableIRQ	2
+../Drivers/CMSIS/Include/core_cm33.h:2165:22:__NVIC_DisableIRQ	2
+../Drivers/CMSIS/Include/core_cm33.h:2324:22:__NVIC_SetPriority	2
+../Core/Src/main.c:35:5:main	1
+../Core/Src/main.c:63:6:init_clks	1
+../Core/Src/main.c:75:6:init_LPUART1	1
+../Core/Src/main.c:93:6:init_adc1	3
+../Core/Src/main.c:140:6:ADC1_2_IRQHandler	2
+../Core/Src/main.c:164:6:init_dac1	1
+../Core/Src/main.c:176:6:init_comp1	1
+../Core/Src/main.c:188:6:init_redLED	1
+../Core/Src/main.c:196:6:pwm	1
+../Core/Src/main.c:239:7:getVoltage	1
+../Core/Src/main.c:246:10:rxLPUART1	2
+../Core/Src/main.c:255:6:txLPUART1	3
+../Core/Src/main.c:264:6:init_tim1	1
