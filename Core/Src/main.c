@@ -49,37 +49,29 @@ int main() {
 
 	while (1)	{
 		/* Get ADC values */
-		bitset(ADC1->CR, 2);					// Start ADC conversion
-		while (bitcheck(ADC1->ISR, 2) == 0) ; 	// wait for conversion complete
-//		bitset(ADC1->ISR, 4);					// clear overmod flag
-		x_plus = ADC1->DR & 0xfff;				// read adc val (clears EOC flag)
-
 //		bitset(ADC1->CR, 2);					// Start ADC conversion
-		while (bitcheck(ADC1->ISR, 2) == 0) ; 	// wait for conversion complete
-//		bitset(ADC1->ISR, 4);					// clear overmod flag
-		x_minus = ADC1->DR & 0xfff;				// read adc val (clears EOC flag)
+//		while (bitcheck(ADC1->ISR, 2) == 0) ; 	// wait for conversion complete
+//		x_plus = ADC1->DR & 0xfff;				// read adc val (clears EOC flag)
+//		while (bitcheck(ADC1->ISR, 2) == 0) ; 	// wait for conversion complete
+//		x_minus = ADC1->DR & 0xfff;				// read adc val (clears EOC flag)
+//		while (bitcheck(ADC1->ISR, 2) == 0) ; 	// wait for conversion complete
+//		y_plus = ADC1->DR & 0xfff;				// read adc val (clears EOC flag)
+//		while (bitcheck(ADC1->ISR, 2) == 0) ; 	// wait for conversion complete
+//		y_minus = ADC1->DR & 0xfff;				// read adc val (clears EOC flag)
+//		delay_ms(1);
+//		bitclear(ADC1->ISR, 3);					// clear EOS flag
 
-//		bitset(ADC1->CR, 2);					// Start ADC conversion
-		while (bitcheck(ADC1->ISR, 2) == 0) ; 	// wait for conversion complete
-//		bitset(ADC1->ISR, 4);					// clear overmod flag
-		y_plus = ADC1->DR & 0xfff;				// read adc val (clears EOC flag)
+		/* Print to LPUART 1 921600 baud rate */
+//		char str[80] = "$";
+//		char src[40];
+//		sprintf(src, "%d %d %d %d", x_plus, x_minus, y_plus, y_minus);
+//		strcat(str, src);
+//		strcat(str, ";");
+//		txLPUART1(str);
+//		delay_ms(5);
 
-	//	bitset(ADC1->CR, 2);					// Start ADC conversion
-		while (bitcheck(ADC1->ISR, 2) == 0) ; 	// wait for conversion complete
-//		bitset(ADC1->ISR, 4);					// clear overmod flag
-		y_minus = ADC1->DR & 0xfff;				// read adc val (clears EOC flag)
-
-		delay_ms(1);
-		bitclear(ADC1->ISR, 3);					// clear EOS flag
-		delay_ms(2);
-
-		char str[80] = "$";
-		char src[40];
-		sprintf(src, "%d %d %d %d", x_plus, x_minus, y_plus, y_minus);
-		strcat(str, src);
-		strcat(str, ";");
-		txLPUART1(str);
-		delay_ms(5);
+		pwm(4);
+		delay_ms(10000);
 
 	}
 	return 1;
@@ -252,7 +244,7 @@ void pwm(uint32_t val){
     // Configure TIM4
 	bitset(RCC->APB1ENR1, 2); // enable the clock for timer 4
 	TIM4->PSC |= 4000 - 1; // divide clock speed by 4000
-	TIM4->ARR = 100 - 1; // set the auto load register
+	TIM4->ARR = 80 - 1; // set the auto load register
 	bitclear(TIM4->CCMR1, 12); // set channel 2 to PWM mode 1, CCMR is set to output by default
 	bitset(TIM4->CCMR1, 13);
 	bitset(TIM4->CCMR1, 14);
