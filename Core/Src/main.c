@@ -39,22 +39,48 @@ int main() {
 	init_dac1();
 	init_comp1();
 	init_redLED();
-	init_tim1(1000);						// initializes timer1 with a period of 250 ms
+	//init_tim1(1000);							// initializes timer1 with a period of 250 ms
 
-	/**
-	 * This main function samples the first ADC value
-	 * 		then will use a slightly higher value as the
-	 * 		comparator trigger level, if it goes above
-	 * 		the red led will light
-	 */
+	uint16_t x_plus = 0;
+	uint16_t x_minus = 0;
+	uint16_t y_plus = 0;
+	uint16_t y_minus = 0;
+
+
 	while (1)	{
-//		if (bitcheck(COMP1->CSR, 30) == 1) {
-//			bitset(GPIOA->ODR, 9); // red
-//			delay_ms(10);
-//		} else {
-//			bitclear(GPIOA->ODR, 9); // red
-//			delay_ms(10);
-//		}
+		/* Get ADC values */
+		bitset(ADC1->CR, 2);					// Start ADC conversion
+		while (bitcheck(ADC1->ISR, 2) == 0) ; 	// wait for conversion complete
+//		bitset(ADC1->ISR, 4);					// clear overmod flag
+		x_plus = ADC1->DR & 0xfff;				// read adc val (clears EOC flag)
+
+//		bitset(ADC1->CR, 2);					// Start ADC conversion
+		while (bitcheck(ADC1->ISR, 2) == 0) ; 	// wait for conversion complete
+//		bitset(ADC1->ISR, 4);					// clear overmod flag
+		x_minus = ADC1->DR & 0xfff;				// read adc val (clears EOC flag)
+
+//		bitset(ADC1->CR, 2);					// Start ADC conversion
+		while (bitcheck(ADC1->ISR, 2) == 0) ; 	// wait for conversion complete
+//		bitset(ADC1->ISR, 4);					// clear overmod flag
+		y_plus = ADC1->DR & 0xfff;				// read adc val (clears EOC flag)
+
+	//	bitset(ADC1->CR, 2);					// Start ADC conversion
+		while (bitcheck(ADC1->ISR, 2) == 0) ; 	// wait for conversion complete
+//		bitset(ADC1->ISR, 4);					// clear overmod flag
+		y_minus = ADC1->DR & 0xfff;				// read adc val (clears EOC flag)
+
+		delay_ms(1);
+		bitclear(ADC1->ISR, 3);					// clear EOS flag
+		delay_ms(2);
+
+		char str[80] = "$";
+		char src[40];
+		sprintf(src, "%d %d %d %d", x_plus, x_minus, y_plus, y_minus);
+		strcat(str, src);
+		strcat(str, ";");
+		txLPUART1(str);
+		delay_ms(5);
+
 	}
 	return 1;
 }
@@ -93,19 +119,23 @@ void init_LPUART1() {
 void init_adc1() {
 	bitset(RCC->AHB2ENR, 13); 	// enable ADC clock
 	RCC->CCIPR1 |= 0x3 << 28; 	// route SYSCLK HCLK to ADC
+//	bitset(RCC->CFGR, 4);		/* Divide clock speed by 64 */
+//	bitset(RCC->CFGR, 5);
+//	bitclear(RCC->CFGR, 6);
+//	bitclear(RCC->CFGR, 7);
 
 	bitclear(ADC1->CR, 29);		// exit deep power mode by setting DEEPPWD = 0 in control register
 	bitset(ADC1->CR, 28); 		// turn on the ADC voltage reguator
 
-	bitset(ADC1->CFGR, 10);		// external trigger enable and polarity for rising edge
-	bitclear(ADC1->CFGR, 11);
+//	bitset(ADC1->CFGR, 10);		// external trigger enable and polarity for rising edge
+//	bitclear(ADC1->CFGR, 11);
 
-	bitclear(ADC1->CFGR, 6);	// external trigger EXT0 connected to TIM1_CH1
-	bitclear(ADC1->CFGR, 7);
-	bitclear(ADC1->CFGR, 8);
-	bitclear(ADC1->CFGR, 9);
+//	bitclear(ADC1->CFGR, 6);	// external trigger EXT0 connected to TIM1_CH1
+//	bitclear(ADC1->CFGR, 7);
+//	bitclear(ADC1->CFGR, 8);
+//	bitclear(ADC1->CFGR, 9);
 
-	bitset(ADC1->CFGR, 13); // enable continous mode
+//	bitset(ADC1->CFGR, 13); // enable continous mode
 
 	bitset(ADC1->CFGR, 12); 	// OVRMOD: Disable overrun mode (ADC keeps going even if user does not read)
 	bitset(ADC1->ISR, 0); 		// ADC Ready
@@ -121,14 +151,15 @@ void init_adc1() {
 	bitset(ADC1->SQR1, 19);
 	bitset(ADC1->SQR1, 26);		// set 4th conversion to ch4 0b0100
 
+	ADC1->SMPR1 |= 0b111111111111;
+
 	/* enable interrupt so that timer will trigger the ADC */
-	NVIC_SetPriority(ADC1_2_IRQn, 0);
-	NVIC_EnableIRQ(ADC1_2_IRQn);
-	ADC1->IER |= 1 << 2; 		// enable EOC Interrupt
+//	NVIC_SetPriority(ADC1_2_IRQn, 0);
+//	NVIC_EnableIRQ(ADC1_2_IRQn);
+//	ADC1->IER |= 0xf | (1 << 4); 		// enable EOC Interrupt
 	ADC1->CR |= 1 ;				// enable ADC
 
 	while (bitcheck(ADC1->ISR, 0) == 0);	// wait until ADC is ready
-	bitset(ADC1->CR, 2);		// start conversion (wait for trigger)
 }
 
 /**
@@ -137,26 +168,26 @@ void init_adc1() {
  * 		to serial plotter through LPUART1 w/
  * 		921600 baud rate
  */
-void ADC1_2_IRQHandler() {
-	NVIC_DisableIRQ(ADC1_2_IRQn);
-	//NVIC_DisableIRQ(TIM2_IRQn);
-	uint16_t adc_val1 = ((ADC1->DR) & 0xfff);
-
-	uint16_t adc_val2 = ((ADC1->DR) & 0xfff);
-
-	uint16_t adc_val3 = ((ADC1->DR) & 0xfff);
-	bitclear(ADC1->ISR, 3);		// clear EOS flag
-//	uint16_t adc_val4 = ((ADC1->DR) & 0xfff);
-	delay_ms(1000);
-
-	char str[80] = "$";
-	char src[40];
-	sprintf(src, "%d %d %d", adc_val1, adc_val2, adc_val3);
-	strcat(str, src);
-	strcat(str, ";");
-	txLPUART1(str);
-	NVIC_EnableIRQ(ADC1_2_IRQn);
-}
+//void ADC1_2_IRQHandler() {
+//	NVIC_DisableIRQ(ADC1_2_IRQn);
+//	//NVIC_DisableIRQ(TIM2_IRQn);
+//	uint16_t adc_val1 = ((ADC1->DR) & 0xfff);
+//
+//	uint16_t adc_val2 = ((ADC1->DR) & 0xfff);
+//
+//	uint16_t adc_val3 = ((ADC1->DR) & 0xfff);
+//	bitclear(ADC1->ISR, 3);		// clear EOS flag
+////	uint16_t adc_val4 = ((ADC1->DR) & 0xfff);
+//	delay_ms(1000);
+//
+//	char str[80] = "$";
+//	char src[40];
+//	sprintf(src, "%d %d %d", adc_val1, adc_val2, adc_val3);
+//	strcat(str, src);
+//	strcat(str, ";");
+//	txLPUART1(str);
+//	NVIC_EnableIRQ(ADC1_2_IRQn);
+//}
 
 /**
  * Initialize DAC1 Clock, Configure PA4 (hooked up to DAC1_OUT1)
