@@ -20,7 +20,7 @@
 #define delay_ms(val) for (int i = 0; i < (1600 * val); i++) {} // delays x milliseconds
 
 /* Helper functions */
-void pwm(uint32_t);
+void pwm_blue_x(uint32_t);
 void get_xy(uint16_t *, uint16_t *);
 uint16_t rxLPUART1();
 void txLPUART1();
@@ -58,7 +58,7 @@ int main() {
 		 */
 
 		//for (int i = 25; i < 2; i++) {
-			pwm(x / 21);
+			pwm_blue_x(x / 21);
 			delay_ms(50);
 		//}
 
