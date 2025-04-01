@@ -21,6 +21,7 @@
 
 /* Helper functions */
 void pwm_blue_x(uint32_t);
+void pwm_green_y(uint32_t);
 void get_xy(uint16_t *, uint16_t *);
 uint16_t rxLPUART1();
 void txLPUART1();
@@ -59,6 +60,7 @@ int main() {
 
 		//for (int i = 25; i < 2; i++) {
 			pwm_blue_x(x / 21);
+			pwm_green_y(y / 21);
 			delay_ms(50);
 		//}
 
@@ -132,10 +134,10 @@ void pwm_green_y(uint32_t degrees){
 
     // Configure PB7 to be driven by the clock
 	bitset(RCC->AHB2ENR, 2); 		// enable clock GPIOC
-	bitclear(GPIOB->MODER, 14); 	// set PC7 to Alternate Function mode
-	bitset(GPIOB->MODER, 15);
-	GPIOB->AFR[0] &= ~(0xf << 28); 	// clear AFR
-	bitset(GPIOB->AFR[0], 29); 		// set PC7 to Alternate Function 2 to connect to TIM3_CH2
+	bitclear(GPIOC->MODER, 14); 	// set PC7 to Alternate Function mode
+	bitset(GPIOC->MODER, 15);
+	GPIOC->AFR[0] &= ~(0xf << 28); 	// clear AFR
+	bitset(GPIOC->AFR[0], 29); 		// set PC7 to Alternate Function 2 to connect to TIM3_CH2
 
     // Configure TIM3
 	bitset(RCC->APB1ENR1, 1); 		// enable the clock for timer 3
