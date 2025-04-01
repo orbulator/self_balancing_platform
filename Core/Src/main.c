@@ -70,6 +70,7 @@ int main() {
 }
 
 // Use Timer 4 routed to LED_BLUE (PB7) (val should be 0 to 100)
+
 void pwm(uint32_t degrees){
     // Use Timer 4:
     // This function demonstrates how to use the compare functionality of the timers.
