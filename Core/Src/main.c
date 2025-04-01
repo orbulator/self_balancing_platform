@@ -71,7 +71,7 @@ int main() {
 
 // Use Timer 4 routed to LED_BLUE (PB7) (val should be 0 to 100)
 
-void pwm(uint32_t degrees){
+void pwm_blue_x(uint32_t degrees){
     // Use Timer 4:
     // This function demonstrates how to use the compare functionality of the timers.
     // The function will allow controlling the LED intensity using PWM.
@@ -109,6 +109,48 @@ void pwm(uint32_t degrees){
 	bitset(TIM4->CCER, 4); 			// enable capture/compare 2 output
 	TIM4->CNT = 0; 					// reset counter current value
 	TIM4->CR1|= 1; 					// enable the timer
+
+}
+
+void pwm_green_y(uint32_t degrees){
+    // Use Timer 4:
+    // This function demonstrates how to use the compare functionality of the timers.
+    // The function will allow controlling the LED intensity using PWM.
+    //
+    // Useful link: https://www.youtube.com/watch?v=BtAi6-7Lnlw
+    //
+    // Steps to set up the timer in an output compare mode:
+    //  1. Enable clock
+    //  2. Set prescaler
+    //  3. Set auto reload register (using the passed val)
+    //  4. Set the Capture/Compare Mode Register to set output to PWM
+    //  5. Set the match value to val (or something based on val?)
+    //  6. Enable CHx compare mode which is connected to the PB7
+    //  7. Reset the counter current value
+    //  8. Enable the timer
+    // No need to do anything else! The PWM of the PB7 is done automatically by the TIM4, allowing the CPU to perform other tasks.
+
+    // Configure PB7 to be driven by the clock
+	bitset(RCC->AHB2ENR, 1); 		// enable clock GPIOB
+	bitclear(GPIOB->MODER, 14); 	// set PB7 to Alternate Function mode
+	bitset(GPIOB->MODER, 15);
+	GPIOB->AFR[0] &= ~(0xf << 28); 	// clear AFR
+	bitset(GPIOB->AFR[0], 29); 		// set PB7 to Alternate Function 2 to connect to TIM4_CH2
+
+    // Configure TIM4
+	bitset(RCC->APB1ENR1, 2); 		// enable the clock for timer 4
+	TIM4->PSC |= 160 - 1; 			// divide clock speed by 160
+	TIM4->ARR = 2000 - 1; 			// set the auto load register
+	bitclear(TIM4->CCMR1, 12); 		// set channel 2 to PWM mode 1, CCMR is set to output by default
+	bitset(TIM4->CCMR1, 13);
+	bitset(TIM4->CCMR1, 14);
+	bitclear(TIM4->CCMR1, 24);
+	TIM4->CCR2 = (degrees * 1) + 40;// set duty cycle (16 bit #, max val is 65535)
+	bitset(TIM4->CCMR1, 11); 		// output compare 2 preload enable
+	bitset(TIM4->CCER, 4); 			// enable capture/compare 2 output
+	TIM4->CNT = 0; 					// reset counter current value
+	TIM4->CR1|= 1; 					// enable the timer
+
 }
 
 /**
