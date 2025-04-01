@@ -43,14 +43,14 @@ int main() {
 		get_xy(&x, &y);
 
 		/* Print to LPUART 1 921600 baud rate */
-		char str[80] = "$";
-		char src[40];
-		sprintf(src, "%d %d", x, y);
-		strcat(str, src);
-		strcat(str, ";");
-		txLPUART1(str);
+//		char str[80] = "$";
+//		char src[40];
+//		sprintf(src, "%d %d", x, y);
+//		strcat(str, src);
+//		strcat(str, ";");
+//		txLPUART1(str);
 
-	}
+
 		/**
 		 * 40 = 0 degrees = stop
 		 * < 56 = left
@@ -58,14 +58,14 @@ int main() {
 		 */
 
 		//for (int i = 25; i < 2; i++) {
-//			pwm(90);
-//			delay_ms(100);
+			pwm(x / 21);
+			delay_ms(50);
 		//}
 
 		//bitclear(TIM4->CR1, 0);
 		//delay_ms(1000);
 
-	//}
+	}
 	return 1;
 }
 
@@ -118,10 +118,10 @@ void pwm(uint32_t degrees){
  * 		y, makes x+ and x- tristate, creates a voltage divider
  * 		between y+ and y-. Then measures the X+ ADC_CH2.
  *
- * 		x+ ----> PD3 & ADC_CH2 PC1
- * 		y+ ----> PD4 & ADC_CH1 PC0
- * 		x- ----> PD5
- * 		y- ----> PD6
+ * 		(purple) x+ ----> PD3 & ADC_CH2 PC1
+ * 		(white)  y+ ----> PD4 & ADC_CH1 PC0
+ * 		(yellow) x- ----> PD5
+ * 		(black)  y- ----> PD6
  */
 void get_xy(uint16_t* x, uint16_t* y) {
 	RCC->AHB2ENR |= 1 << 3;		// turn on clock gpiod

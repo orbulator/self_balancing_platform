@@ -1,4 +1,4 @@
-../Core/Src/main.c:33:5:main	1
+../Core/Src/main.c:33:5:main	2
 ../Core/Src/main.c:73:6:pwm	1
 ../Core/Src/main.c:126:6:get_xy	4
 ../Core/Src/main.c:174:10:rxLPUART1	2
