@@ -31,7 +31,7 @@ C_DEPS += \
 
 # Each subdirectory must supply rules for building sources it contributes
 Core/Src/%.o Core/Src/%.su Core/Src/%.cyclo: ../Core/Src/%.c Core/Src/subdir.mk
-	arm-none-eabi-gcc "$<" -mcpu=cortex-m33 -std=gnu11 -g3 -DDEBUG -DUSE_NUCLEO_64 -DUSE_HAL_DRIVER -DSTM32L552xx -c -I../Core/Inc -I../Drivers/STM32L5xx_HAL_Driver/Inc -I../Drivers/STM32L5xx_HAL_Driver/Inc/Legacy -I../Drivers/BSP/STM32L5xx_Nucleo -I../Drivers/CMSIS/Device/ST/STM32L5xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" --specs=nano.specs -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
+	arm-none-eabi-gcc "$<" -mcpu=cortex-m33 -std=gnu11 -g3 -DDEBUG -DUSE_NUCLEO_64 -DUSE_HAL_DRIVER -DSTM32L552xx -c -I../Core/Inc -IC:/Users/Keegan/STM32Cube/Repository/STM32Cube_FW_L5_V1.5.1/Drivers/STM32L5xx_HAL_Driver/Inc -IC:/Users/Keegan/STM32Cube/Repository/STM32Cube_FW_L5_V1.5.1/Drivers/STM32L5xx_HAL_Driver/Inc/Legacy -IC:/Users/Keegan/STM32Cube/Repository/STM32Cube_FW_L5_V1.5.1/Drivers/BSP/STM32L5xx_Nucleo -IC:/Users/Keegan/STM32Cube/Repository/STM32Cube_FW_L5_V1.5.1/Drivers/CMSIS/Device/ST/STM32L5xx/Include -IC:/Users/Keegan/STM32Cube/Repository/STM32Cube_FW_L5_V1.5.1/Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" --specs=nano.specs -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
 
 clean: clean-Core-2f-Src
 

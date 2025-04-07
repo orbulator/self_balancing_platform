@@ -10,6 +10,7 @@ RM := rm -rf
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include Drivers/STM32L5xx_HAL_Driver/Src/subdir.mk
+-include Drivers/STM32L5xx_HAL_Driver/subdir.mk
 -include Drivers/BSP/STM32L5xx_Nucleo/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
@@ -61,8 +62,8 @@ all: main-build
 main-build: self_balancing_platform.elf secondary-outputs
 
 # Tool invocations
-self_balancing_platform.elf self_balancing_platform.map: $(OBJS) $(USER_OBJS) C:\Users\sport\STM32CubeIDE\workspace_1.17.0\self_balancing_platform\STM32L552ZETXQ_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "self_balancing_platform.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m33 -T"C:\Users\sport\STM32CubeIDE\workspace_1.17.0\self_balancing_platform\STM32L552ZETXQ_FLASH.ld" --specs=nosys.specs -Wl,-Map="self_balancing_platform.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+self_balancing_platform.elf self_balancing_platform.map: $(OBJS) $(USER_OBJS) C:\Users\Keegan\STM32CubeIDE\workspace_1.17.0\self_balancing_platform\STM32L552ZETXQ_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "self_balancing_platform.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m33 -T"C:\Users\Keegan\STM32CubeIDE\workspace_1.17.0\self_balancing_platform\STM32L552ZETXQ_FLASH.ld" --specs=nosys.specs -Wl,-Map="self_balancing_platform.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

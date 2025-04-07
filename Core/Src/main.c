@@ -18,6 +18,8 @@
 #define bitflip(word, idx)   (word ^= (1<<idx)) // flips bit #
 #define bitcheck(word, idx)  ((word>>idx) & 1) //checks bit number 0 means clear
 #define delay_ms(val) for (int i = 0; i < (1600 * val); i++) {} // delays x milliseconds
+int16_t x = 0; // x coordinate of touch panel ////CAN WE MAKE THESE GLOBAL VARIABLES?
+int16_t y = 0; // y coordinate of touch panel ////CAN WE MAKE THESE GLOBAL VARIABLES?
 
 /* Helper functions */
 void pwm_blue_x(uint32_t);
@@ -69,6 +71,54 @@ int main() {
 
 	}
 	return 1;
+}
+
+void pwm_control_x(){
+	/* Current Error - Proportional term (desired - where we are) (0,0 - Xaxis)*/
+	int16_t e = 0 - x; //(0,0 - Xaxis)
+
+	/* Accumulated Error - Integral term */
+	int16_t totalError = 0;
+	totalError += 0;
+
+	/* Also prepare for next iteration – set previous to Current Error */
+	int16_t previousError = e;
+
+	/* Difference of Error - Derivative term */
+	int16_t deltaError = e - previousError;
+
+	/* PID control */
+	int8_t Kp=0;
+	int8_t Ki=0;
+	int8_t Kd=0;
+	int8_t T =0;
+	int16_t u = 0;
+	u = Kp * e + Ki * (totalError * T) + Kd * (deltaError / T);
+
+}
+
+void pwm_control_y(){
+	/* Current Error - Proportional term (desired - where we are) */
+	int16_t e = 0 - y; //(0,0 - Yaxis)
+
+	/* Accumulated Error - Integral term */
+	int16_t totalError = 0;
+	totalError += 0;
+
+	/* Also prepare for next iteration – set previous to Current Error */
+	int16_t previousError = e;
+
+	/* Difference of Error - Derivative term */
+	int16_t deltaError = e - previousError;
+
+	/* PID control */
+	int8_t Kp=0;
+	int8_t Ki=0;
+	int8_t Kd=0;
+	int8_t T = 0;
+	int16_t u = 0;
+	u = Kp * e + Ki * (totalError * T) + Kd * (deltaError / T);
+
 }
 
 // Use Timer 4 routed to LED_BLUE (PB7) (val should be 0 to 100)
