@@ -4856,29 +4856,29 @@ LOAD C:/ST/STM32CubeIDE_1.17.0/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.ext
 LOAD C:/ST/STM32CubeIDE_1.17.0/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130/tools/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v8-m.main+fp/hard\libm.a
 LOAD C:/ST/STM32CubeIDE_1.17.0/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130/tools/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v8-m.main+fp/hard\libgcc.a
 
-.debug_info     0x00000000     0x94c0
- .debug_info    0x00000000      0xb58 ./Core/Src/main.o
- .debug_info    0x00000b58      0x15c ./Core/Src/stm32l5xx_it.o
- .debug_info    0x00000cb4      0x6a3 ./Core/Src/syscalls.o
- .debug_info    0x00001357      0x168 ./Core/Src/sysmem.o
- .debug_info    0x000014bf      0x7e2 ./Core/Src/system_stm32l5xx.o
- .debug_info    0x00001ca1       0x30 ./Core/Startup/startup_stm32l552zetxq.o
- .debug_info    0x00001cd1     0x1a60 ./Drivers/BSP/STM32L5xx_Nucleo/stm32l5xx_nucleo.o
- .debug_info    0x00003731      0xcf3 ./Drivers/STM32L5xx_HAL_Driver/Src/stm32l5xx_hal.o
- .debug_info    0x00004424      0x7a1 ./Drivers/STM32L5xx_HAL_Driver/Src/stm32l5xx_hal_exti.o
- .debug_info    0x00004bc5     0x48fb ./Drivers/STM32L5xx_HAL_Driver/Src/stm32l5xx_hal_uart.o
+.debug_info     0x00000000     0x94bd
+ .debug_info    0x00000000      0xb55 ./Core/Src/main.o
+ .debug_info    0x00000b55      0x15c ./Core/Src/stm32l5xx_it.o
+ .debug_info    0x00000cb1      0x6a3 ./Core/Src/syscalls.o
+ .debug_info    0x00001354      0x168 ./Core/Src/sysmem.o
+ .debug_info    0x000014bc      0x7e2 ./Core/Src/system_stm32l5xx.o
+ .debug_info    0x00001c9e       0x30 ./Core/Startup/startup_stm32l552zetxq.o
+ .debug_info    0x00001cce     0x1a60 ./Drivers/BSP/STM32L5xx_Nucleo/stm32l5xx_nucleo.o
+ .debug_info    0x0000372e      0xcf3 ./Drivers/STM32L5xx_HAL_Driver/Src/stm32l5xx_hal.o
+ .debug_info    0x00004421      0x7a1 ./Drivers/STM32L5xx_HAL_Driver/Src/stm32l5xx_hal_exti.o
+ .debug_info    0x00004bc2     0x48fb ./Drivers/STM32L5xx_HAL_Driver/Src/stm32l5xx_hal_uart.o
 
-.debug_abbrev   0x00000000     0x111a
- .debug_abbrev  0x00000000      0x1de ./Core/Src/main.o
- .debug_abbrev  0x000001de       0xbc ./Core/Src/stm32l5xx_it.o
- .debug_abbrev  0x0000029a      0x1b6 ./Core/Src/syscalls.o
- .debug_abbrev  0x00000450       0xbc ./Core/Src/sysmem.o
- .debug_abbrev  0x0000050c      0x12b ./Core/Src/system_stm32l5xx.o
- .debug_abbrev  0x00000637       0x24 ./Core/Startup/startup_stm32l552zetxq.o
- .debug_abbrev  0x0000065b      0x33c ./Drivers/BSP/STM32L5xx_Nucleo/stm32l5xx_nucleo.o
- .debug_abbrev  0x00000997      0x2cd ./Drivers/STM32L5xx_HAL_Driver/Src/stm32l5xx_hal.o
- .debug_abbrev  0x00000c64      0x191 ./Drivers/STM32L5xx_HAL_Driver/Src/stm32l5xx_hal_exti.o
- .debug_abbrev  0x00000df5      0x325 ./Drivers/STM32L5xx_HAL_Driver/Src/stm32l5xx_hal_uart.o
+.debug_abbrev   0x00000000     0x1109
+ .debug_abbrev  0x00000000      0x1cd ./Core/Src/main.o
+ .debug_abbrev  0x000001cd       0xbc ./Core/Src/stm32l5xx_it.o
+ .debug_abbrev  0x00000289      0x1b6 ./Core/Src/syscalls.o
+ .debug_abbrev  0x0000043f       0xbc ./Core/Src/sysmem.o
+ .debug_abbrev  0x000004fb      0x12b ./Core/Src/system_stm32l5xx.o
+ .debug_abbrev  0x00000626       0x24 ./Core/Startup/startup_stm32l552zetxq.o
+ .debug_abbrev  0x0000064a      0x33c ./Drivers/BSP/STM32L5xx_Nucleo/stm32l5xx_nucleo.o
+ .debug_abbrev  0x00000986      0x2cd ./Drivers/STM32L5xx_HAL_Driver/Src/stm32l5xx_hal.o
+ .debug_abbrev  0x00000c53      0x191 ./Drivers/STM32L5xx_HAL_Driver/Src/stm32l5xx_hal_exti.o
+ .debug_abbrev  0x00000de4      0x325 ./Drivers/STM32L5xx_HAL_Driver/Src/stm32l5xx_hal_uart.o
 
 .debug_aranges  0x00000000      0x698
  .debug_aranges
@@ -5003,17 +5003,17 @@ LOAD C:/ST/STM32CubeIDE_1.17.0/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.ext
  .debug_macro   0x0001f955      0x1f4 ./Drivers/STM32L5xx_HAL_Driver/Src/stm32l5xx_hal_exti.o
  .debug_macro   0x0001fb49      0x207 ./Drivers/STM32L5xx_HAL_Driver/Src/stm32l5xx_hal_uart.o
 
-.debug_line     0x00000000     0x8a16
- .debug_line    0x00000000      0x915 ./Core/Src/main.o
- .debug_line    0x00000915      0xa15 ./Core/Src/stm32l5xx_it.o
- .debug_line    0x0000132a      0x8a8 ./Core/Src/syscalls.o
- .debug_line    0x00001bd2      0x579 ./Core/Src/sysmem.o
- .debug_line    0x0000214b      0x817 ./Core/Src/system_stm32l5xx.o
- .debug_line    0x00002962       0x79 ./Core/Startup/startup_stm32l552zetxq.o
- .debug_line    0x000029db      0xcda ./Drivers/BSP/STM32L5xx_Nucleo/stm32l5xx_nucleo.o
- .debug_line    0x000036b5      0xb8d ./Drivers/STM32L5xx_HAL_Driver/Src/stm32l5xx_hal.o
- .debug_line    0x00004242      0xbb5 ./Drivers/STM32L5xx_HAL_Driver/Src/stm32l5xx_hal_exti.o
- .debug_line    0x00004df7     0x3c1f ./Drivers/STM32L5xx_HAL_Driver/Src/stm32l5xx_hal_uart.o
+.debug_line     0x00000000     0x8a11
+ .debug_line    0x00000000      0x910 ./Core/Src/main.o
+ .debug_line    0x00000910      0xa15 ./Core/Src/stm32l5xx_it.o
+ .debug_line    0x00001325      0x8a8 ./Core/Src/syscalls.o
+ .debug_line    0x00001bcd      0x579 ./Core/Src/sysmem.o
+ .debug_line    0x00002146      0x817 ./Core/Src/system_stm32l5xx.o
+ .debug_line    0x0000295d       0x79 ./Core/Startup/startup_stm32l552zetxq.o
+ .debug_line    0x000029d6      0xcda ./Drivers/BSP/STM32L5xx_Nucleo/stm32l5xx_nucleo.o
+ .debug_line    0x000036b0      0xb8d ./Drivers/STM32L5xx_HAL_Driver/Src/stm32l5xx_hal.o
+ .debug_line    0x0000423d      0xbb5 ./Drivers/STM32L5xx_HAL_Driver/Src/stm32l5xx_hal_exti.o
+ .debug_line    0x00004df2     0x3c1f ./Drivers/STM32L5xx_HAL_Driver/Src/stm32l5xx_hal_uart.o
 
 .debug_str      0x00000000    0xff4dc
  .debug_str     0x00000000    0xae619 ./Core/Src/main.o
