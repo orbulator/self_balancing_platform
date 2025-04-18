@@ -9,8 +9,6 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include Drivers/STM32L5xx_HAL_Driver/Src/subdir.mk
--include Drivers/BSP/STM32L5xx_Nucleo/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
 -include objects.mk
@@ -35,34 +33,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := self_balancing_platform
+BUILD_ARTIFACT_NAME := self_balancing_platform1
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-self_balancing_platform.elf \
+self_balancing_platform1.elf \
 
 MAP_FILES += \
-self_balancing_platform.map \
+self_balancing_platform1.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-self_balancing_platform.list \
+self_balancing_platform1.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: self_balancing_platform.elf secondary-outputs
+main-build: self_balancing_platform1.elf secondary-outputs
 
 # Tool invocations
-self_balancing_platform.elf self_balancing_platform.map: $(OBJS) $(USER_OBJS) C:\Users\sport\STM32CubeIDE\workspace_1.17.0\self_balancing_platform\STM32L552ZETXQ_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "self_balancing_platform.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m33 -T"C:\Users\sport\STM32CubeIDE\workspace_1.17.0\self_balancing_platform\STM32L552ZETXQ_FLASH.ld" --specs=nosys.specs -Wl,-Map="self_balancing_platform.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+self_balancing_platform1.elf self_balancing_platform1.map: $(OBJS) $(USER_OBJS) C:\Users\Keegan\STM32CubeIDE\workspace_1.17.0\self_balancing_platform1\STM32L552ZETXQ_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "self_balancing_platform1.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m33 -T"C:\Users\Keegan\STM32CubeIDE\workspace_1.17.0\self_balancing_platform1\STM32L552ZETXQ_FLASH.ld" --specs=nosys.specs -Wl,-Map="self_balancing_platform1.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -71,14 +69,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-self_balancing_platform.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "self_balancing_platform.list"
+self_balancing_platform1.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "self_balancing_platform1.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) default.size.stdout self_balancing_platform.elf self_balancing_platform.list self_balancing_platform.map
+	-$(RM) default.size.stdout self_balancing_platform1.elf self_balancing_platform1.list self_balancing_platform1.map
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)

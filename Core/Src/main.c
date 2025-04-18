@@ -107,6 +107,58 @@ void pwm_green_y(uint32_t degrees){
 	TIM3->CR1|= 1; 					// enable the timer
 }
 
+void pwm_control_x(int16_t currentX){
+	/* Current Error - Proportional term (desired - where we are) (0,0 - Xaxis)*/
+	int16_t e = 0 - currentX; //(0,0 - Xaxis)
+
+	/* Accumulated Error - Integral term */
+	int16_t totalError = 0;
+	totalError += 0;
+
+	/* Also prepare for next iteration – set previous to Current Error */
+	int16_t previousError = e;
+
+	/* Difference of Error - Derivative term */
+	int16_t deltaError = e - previousError;
+
+	/* PID control */
+	int8_t Kp=0;
+	int8_t Ki=0;
+	int8_t Kd=0;
+	int8_t T =0;
+	int16_t u = 0;
+	u = Kp * e + Ki * (totalError * T) + Kd * (deltaError / T);
+
+	return u;
+
+}
+
+void pwm_control_y(int16_t currentY){
+	/* Current Error - Proportional term (desired - where we are) */
+	int16_t e = 0 - currentY; //(0,0 - Yaxis)
+
+	/* Accumulated Error - Integral term */
+	int16_t totalError = 0;
+	totalError += 0;
+
+	/* Also prepare for next iteration – set previous to Current Error */
+	int16_t previousError = e;
+
+	/* Difference of Error - Derivative term */
+	int16_t deltaError = e - previousError;
+
+	/* PID control */
+	int8_t Kp=0;
+	int8_t Ki=0;
+	int8_t Kd=0;
+	int8_t T = 0;
+	int16_t u = 0;
+	u = Kp * e + Ki * (totalError * T) + Kd * (deltaError / T);
+
+	return u;
+
+}
+
 /**
  * Gets the x and y coordinates of the current touch panel
  * 		position. To measure x, makes y+ and y- tristate,

@@ -180,37 +180,37 @@ void PendSV_Handler(void)
 /**
   * @brief This function handles System tick timer.
   */
-void SysTick_Handler(void)
-{
-  /* USER CODE BEGIN SysTick_IRQn 0 */
-
-  /* USER CODE END SysTick_IRQn 0 */
-  HAL_IncTick();
-  /* USER CODE BEGIN SysTick_IRQn 1 */
-
-  /* USER CODE END SysTick_IRQn 1 */
-}
-
-/******************************************************************************/
-/* STM32L5xx Peripheral Interrupt Handlers                                    */
-/* Add here the Interrupt Handlers for the used peripherals.                  */
-/* For the available peripheral interrupt handler names,                      */
-/* please refer to the startup file (startup_stm32l5xx.s).                    */
-/******************************************************************************/
-
-/**
-  * @brief This function handles EXTI line13 interrupt.
-  */
-void EXTI13_IRQHandler(void)
-{
-  /* USER CODE BEGIN EXTI13_IRQn 0 */
-
-  /* USER CODE END EXTI13_IRQn 0 */
-  BSP_PB_IRQHandler(BUTTON_USER);
-  /* USER CODE BEGIN EXTI13_IRQn 1 */
-
-  /* USER CODE END EXTI13_IRQn 1 */
-}
+//void SysTick_Handler(void)
+//{
+//  /* USER CODE BEGIN SysTick_IRQn 0 */
+//
+//  /* USER CODE END SysTick_IRQn 0 */
+//  HAL_IncTick();
+//  /* USER CODE BEGIN SysTick_IRQn 1 */
+//
+//  /* USER CODE END SysTick_IRQn 1 */
+//}
+//
+///******************************************************************************/
+///* STM32L5xx Peripheral Interrupt Handlers                                    */
+///* Add here the Interrupt Handlers for the used peripherals.                  */
+///* For the available peripheral interrupt handler names,                      */
+///* please refer to the startup file (startup_stm32l5xx.s).                    */
+///******************************************************************************/
+//
+///**
+//  * @brief This function handles EXTI line13 interrupt.
+//  */
+//void EXTI13_IRQHandler(void)
+//{
+//  /* USER CODE BEGIN EXTI13_IRQn 0 */
+//
+//  /* USER CODE END EXTI13_IRQn 0 */
+//  BSP_PB_IRQHandler(BUTTON_USER);
+//  /* USER CODE BEGIN EXTI13_IRQn 1 */
+//
+//  /* USER CODE END EXTI13_IRQn 1 */
+//}
 
 /* USER CODE BEGIN 1 */
 
