@@ -22,6 +22,8 @@
 /* Helper functions */
 void pwm_blue_x(uint32_t);
 void pwm_green_y(uint32_t);
+float pid_x(float);
+float pid_y(float);
 void get_xy(uint16_t *, uint16_t *);
 uint16_t rxLPUART1();
 void txLPUART1();
@@ -31,17 +33,32 @@ void init_clks();
 void init_LPUART1();
 void init_adc1();
 
+/*Variables*/
+#define ADC_MIN   125      // empirical         (≈ left / bottom edge)
+#define ADC_MAX  3800      // empirical         (≈ right / top  edge)
+
+#define ADC_MID  ((ADC_MIN + ADC_MAX) / 2)   // ≈ 1962
+#define ADC_SPAN (ADC_MAX - ADC_MIN)         // ≈ 3675
+
+
+
 int main() {
 	init_clks();
 	init_LPUART1();
 	init_adc1();
 
-	uint16_t x = 0; // x coordinate of touch panel
-	uint16_t y = 0; // y coordinate of touch panel
+	uint16_t x = 0;
+	uint16_t y =0;
+
+	float posX = 0;
+	float posY = 0;
 
 	while (1)	{
 
 		get_xy(&x, &y);
+
+		posX = 200 * ((float)x - ADC_MID) / ADC_SPAN;
+		posY = 200 * ((float)y - ADC_MID) / ADC_SPAN;
 
 		/* Print to LPUART 1 921600 baud rate */
 //		char str[80] = "$";
@@ -50,25 +67,29 @@ int main() {
 //		strcat(str, src);
 //		strcat(str, ";");
 //		txLPUART1(str);
+		float u_x = pid_x(posX);
+		float u_y = pid_y(posY);
 
+		uint32_t dutyX = (uint32_t)(u_x + 90.0f);   // –45→45  →  45→135 deg
+		uint32_t dutyY = (uint32_t)(u_y + 90.0f);   // –45→45  →  45→135 deg
+		pwm_blue_x(dutyX);
+		pwm_green_y(dutyY);
 
-			pwm_blue_x(x / 21);
-			pwm_green_y(y / 21);
-			delay_ms(50);
+		delay_ms(50);
 
 	}
 	return 1;
 }
 
 void pwm_blue_x(uint32_t degrees){
-    // Configure PB7 to be driven by the clock
+	// Configure PB7 to be driven by the clock
 	bitset(RCC->AHB2ENR, 1); 		// enable clock GPIOB
 	bitclear(GPIOB->MODER, 14); 	// set PB7 to Alternate Function mode
 	bitset(GPIOB->MODER, 15);
 	GPIOB->AFR[0] &= ~(0xf << 28); 	// clear AFR
 	bitset(GPIOB->AFR[0], 29); 		// set PB7 to Alternate Function 2 to connect to TIM4_CH2
 
-    // Configure TIM4
+	// Configure TIM4
 	bitset(RCC->APB1ENR1, 2); 		// enable the clock for timer 4
 	TIM4->PSC |= 160 - 1; 			// divide clock speed by 160
 	TIM4->ARR = 2000 - 1; 			// set the auto load register
@@ -85,14 +106,14 @@ void pwm_blue_x(uint32_t degrees){
 }
 
 void pwm_green_y(uint32_t degrees){
-    // Configure PC7 to be driven by the clock
+	// Configure PC7 to be driven by the clock
 	bitset(RCC->AHB2ENR, 2); 		// enable clock GPIOC
 	bitclear(GPIOC->MODER, 14); 	// set PC7 to Alternate Function mode
 	bitset(GPIOC->MODER, 15);
 	GPIOC->AFR[0] &= ~(0xf << 28); 	// clear AFR
 	bitset(GPIOC->AFR[0], 29); 		// set PC7 to Alternate Function 2 to connect to TIM3_CH2
 
-    // Configure TIM3
+	// Configure TIM3
 	bitset(RCC->APB1ENR1, 1); 		// enable the clock for timer 3
 	TIM3->PSC |= 160 - 1; 			// divide clock speed by 160
 	TIM3->ARR = 2000 - 1; 			// set the auto load register
@@ -106,54 +127,64 @@ void pwm_green_y(uint32_t degrees){
 	TIM3->CNT = 0; 					// reset counter current value
 	TIM3->CR1|= 1; 					// enable the timer
 }
+float pid_x(float currentX){
+	/* Current Error - Proportional term (desired - where we are) */
 
-void pwm_control_x(int16_t currentX){
-	/* Current Error - Proportional term (desired - where we are) (0,0 - Xaxis)*/
-	int16_t e = 0 - currentX; //(0,0 - Xaxis)
+	static float totalError = 0;
+	static float previousError = 0;
+
+	float e = - currentX; //(0,0 - Yaxis)
 
 	/* Accumulated Error - Integral term */
-	int16_t totalError = 0;
-	totalError += 0;
-
-	/* Also prepare for next iteration – set previous to Current Error */
-	int16_t previousError = e;
+	totalError += e;
 
 	/* Difference of Error - Derivative term */
-	int16_t deltaError = e - previousError;
+	float deltaError = e - previousError;
 
-	/* PID control */
-	int8_t Kp=0;
-	int8_t Ki=0;
-	int8_t Kd=0;
-	int8_t T =0;
-	int16_t u = 0;
+	/* Also prepare for next iteration – set previous to Current Error */
+	previousError = e;
+
+	/* PID control variables */
+	float Kp=0.8;
+	float Ki=0.02;
+	float Kd=0.01;
+	float T =0.05;
+	float u = 0;
 	u = Kp * e + Ki * (totalError * T) + Kd * (deltaError / T);
+
+	if(u > 45.0) u = 45.0;
+	if(u < -45.0 ) u = -45.0;
 
 	return u;
 
 }
-
-void pwm_control_y(int16_t currentY){
+float pid_y(float currentY){
 	/* Current Error - Proportional term (desired - where we are) */
-	int16_t e = 0 - currentY; //(0,0 - Yaxis)
+	static float totalError = 0;
+	static float previousError = 0;
+
+	float e = -currentY; //(0,0 - Yaxis)
 
 	/* Accumulated Error - Integral term */
-	int16_t totalError = 0;
-	totalError += 0;
+	totalError += e;
 
-	/* Also prepare for next iteration – set previous to Current Error */
-	int16_t previousError = e;
 
 	/* Difference of Error - Derivative term */
-	int16_t deltaError = e - previousError;
+	float deltaError = e - previousError;
 
-	/* PID control */
-	int8_t Kp=0;
-	int8_t Ki=0;
-	int8_t Kd=0;
-	int8_t T = 0;
-	int16_t u = 0;
+	/* Also prepare for next iteration – set previous to Current Error */
+	previousError = e;
+
+	/* PID control variables */
+	float Kp=0.8;
+	float Ki=0.02;
+	float Kd=0.01;
+	float T =0.05;
+	float u = 0;
 	u = Kp * e + Ki * (totalError * T) + Kd * (deltaError / T);
+
+	if(u > 45)  u = 45;
+	if(u < -45 ) u = -45;
 
 	return u;
 
