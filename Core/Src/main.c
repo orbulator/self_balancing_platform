@@ -20,6 +20,8 @@
 #define delay_ms(val) for (int i = 0; i < (1600 * val); i++) {} // delays x milliseconds
 
 /* Helper functions */
+void init_adc1();
+void init_LPUART1();
 void pwm_blue_x(uint32_t);
 void pwm_green_y(uint32_t);
 float pid_x(float);
@@ -27,6 +29,13 @@ float pid_y(float);
 void get_xy(uint16_t *, uint16_t *);
 uint16_t rxLPUART1();
 void txLPUART1();
+//void linePattern(float rx, float ry, int wait_ms, int cycles);
+//void trianglePattern(float s, int wait_ms, int cycles);
+//void squarePattern(float half, int wait_ms, int cycles);
+//void ellipsePattern(float rx, float ry, int wait_ms, int cycles);
+//void sinusoidalPattern(float A, float freq, int wait_ms);
+//void figure8Pattern(float r, int wait_ms, int cycles);
+
 
 /* Init Functions */
 void init_clks();
@@ -34,8 +43,8 @@ void init_LPUART1();
 void init_adc1();
 
 /*Variables*/
-#define ADC_MIN   125      // empirical         (≈ left / bottom edge)
-#define ADC_MAX  3800      // empirical         (≈ right / top  edge)
+#define ADC_MIN   0      // empirical         (≈ left / bottom edge)
+#define ADC_MAX  4096      // empirical         (≈ right / top  edge)
 
 #define ADC_MID  ((ADC_MIN + ADC_MAX) / 2)   // ≈ 1962
 #define ADC_SPAN (ADC_MAX - ADC_MIN)         // ≈ 3675
@@ -53,6 +62,9 @@ int main() {
 	float posX = 0;
 	float posY = 0;
 
+	//linePattern      (50.0f,  -50.0f, 500, 3);
+
+
 	while (1)	{
 
 		get_xy(&x, &y);
@@ -60,22 +72,31 @@ int main() {
 		posX = 200 * ((float)x - ADC_MID) / ADC_SPAN;
 		posY = 200 * ((float)y - ADC_MID) / ADC_SPAN;
 
-		/* Print to LPUART 1 921600 baud rate */
-//		char str[80] = "$";
-//		char src[40];
-//		sprintf(src, "%d %d", x, y);
-//		strcat(str, src);
-//		strcat(str, ";");
-//		txLPUART1(str);
-		float u_x = pid_x(posX);
-		float u_y = pid_y(posY);
+		//		float x_set = 50 *cosf(w * t);
+		//		float y_set = 50 * sinf(w * t);
 
-		uint32_t dutyX = (uint32_t)(u_x + 90.0f);   // –45→45  →  45→135 deg
-		uint32_t dutyY = (uint32_t)(u_y + 90.0f);   // –45→45  →  45→135 deg
-		pwm_blue_x(dutyX);
-		pwm_green_y(dutyY);
+		//
+		//		/* Print to LPUART 1 921600 baud rate */
+		//		char str[80] = "$";
+		//		char src[40];
+		//		sprintf(src, "%d %d", x, y);
+		//		strcat(str, src);
+		//		strcat(str, ";");
+		//		txLPUART1(str);
 
-		delay_ms(50);
+		//	    linePattern      (50.0f,  -50.0f, 200, 3);
+
+				float u_x = pid_x(posX);
+				float u_y = pid_y(posY);
+
+				uint32_t dutyX = (uint32_t)(u_x + 90.0f);   // –45→45  →  45→135 deg
+				uint32_t dutyY = (uint32_t)(u_y + 90.0f);   // –45→45  →  45→135 deg
+
+				pwm_blue_x(dutyX);
+				pwm_green_y(dutyY);
+		//
+		//		t += 0.05;
+				delay_ms(50);
 
 	}
 	return 1;
@@ -127,13 +148,47 @@ void pwm_green_y(uint32_t degrees){
 	TIM3->CNT = 0; 					// reset counter current value
 	TIM3->CR1|= 1; 					// enable the timer
 }
+
+//void balance_timer(){
+//	bitset(RCC-> APB1ENR1, 0); //Enables timer 2
+//	TIM2->PSC |= 160 - 1; 			// divide clock speed by 160
+//	TIM2->ARR = 5000 - 1; 			// set the auto load register
+//	TIM2->CNT = 0; 					// reset counter current value
+//	TIM2->CR1|= 1;
+//	while(bitcheck(TIM2->SR,0)==0); //watches for Update Interrupt Flag and stalls
+//	bitclear(TIM2->SR, 0); //clears the bit to reset timer
+//
+//	NVIC_SetPriority(TIM2_IRQn, 1);
+//	NVIC_EnableIRQ(TIM2_IRQn);
+//}
+
+//void TIM2_IRQHandler(){
+//	if (TIM2->SR & TIM_SR_UIF) {
+//		TIM2->SR = 0;  // clear interrupt flag
+//
+//		// 1) read & scale
+//		uint16_t rawX, rawY;
+//		get_xy(&rawX, &rawY);
+//		float posX = 200*((float)rawX - ADC_MID)/ADC_SPAN;
+//		float posY = 200*((float)rawY - ADC_MID)/ADC_SPAN;
+//
+//		// 2) PID on current global setpoints
+//		float u_x = pid_x(posX );
+//		float u_y = pid_y(posY );
+//
+//		// 3) drive servos
+//		pwm_blue_x(  (uint32_t)(u_x + 90.0) );
+//		pwm_green_y((uint32_t)(u_y + 90.0) );
+//
+//	}
+//}
 float pid_x(float currentX){
 	/* Current Error - Proportional term (desired - where we are) */
 
 	static float totalError = 0;
 	static float previousError = 0;
 
-	float e = - currentX; //(0,0 - Yaxis)
+	float e = currentX; //(0,0 - Yaxis)
 
 	/* Accumulated Error - Integral term */
 	totalError += e;
@@ -145,15 +200,15 @@ float pid_x(float currentX){
 	previousError = e;
 
 	/* PID control variables */
-	float Kp=0.8;
-	float Ki=0.02;
-	float Kd=0.01;
+	float Kp=0.20;
+	float Ki=0.15;
+	float Kd=0.07;
 	float T =0.05;
 	float u = 0;
 	u = Kp * e + Ki * (totalError * T) + Kd * (deltaError / T);
 
-	if(u > 45.0) u = 45.0;
-	if(u < -45.0 ) u = -45.0;
+	if(u > 30.0) u = 30.0;
+	if(u < -30.0 ) u = -30.0;
 
 	return u;
 
@@ -176,19 +231,37 @@ float pid_y(float currentY){
 	previousError = e;
 
 	/* PID control variables */
-	float Kp=0.8;
-	float Ki=0.02;
-	float Kd=0.01;
+	float Kp=0.20;
+	float Ki=0.15;
+	float Kd=0.07;
 	float T =0.05;
 	float u = 0;
 	u = Kp * e + Ki * (totalError * T) + Kd * (deltaError / T);
 
-	if(u > 45)  u = 45;
-	if(u < -45 ) u = -45;
+	if(u > 30)  u = 30;
+	if(u < -30 ) u = -30;
 
 	return u;
 
 }
+
+void linePattern(float rx, float ry, int wait_ms, int cycles) {
+	for (int c = 0; c < cycles; c++) {
+		// positive end
+		float u_x = pid_x( rx );
+		float u_y = pid_y( -ry );
+		pwm_blue_x((uint32_t)(u_x + 90));
+		pwm_green_y((uint32_t)(u_y + 90));
+		delay_ms(wait_ms);
+		// negative end
+		u_x = pid_x( -rx );
+		u_y = pid_y( -ry );
+		pwm_blue_x((uint32_t)(u_x + 90));
+		pwm_green_y((uint32_t)(u_y + 90));
+		delay_ms(wait_ms);
+	}
+}
+
 
 /**
  * Gets the x and y coordinates of the current touch panel
@@ -327,6 +400,7 @@ void init_adc1() {
 
 	while (bitcheck(ADC1->ISR, 0) == 0);	// wait until ADC is ready
 }
+
 
 
 
