@@ -8,6 +8,7 @@
 
 #include "stm32l552xx.h"
 #include "stdio.h"
+#include <stdbool.h>
 #include "math.h"
 #include "string.h"
 
@@ -29,12 +30,8 @@ float pid_y(float);
 void get_xy(uint16_t *, uint16_t *);
 uint16_t rxLPUART1();
 void txLPUART1();
+void balance_timer();
 //void linePattern(float rx, float ry, int wait_ms, int cycles);
-//void trianglePattern(float s, int wait_ms, int cycles);
-//void squarePattern(float half, int wait_ms, int cycles);
-//void ellipsePattern(float rx, float ry, int wait_ms, int cycles);
-//void sinusoidalPattern(float A, float freq, int wait_ms);
-//void figure8Pattern(float r, int wait_ms, int cycles);
 
 
 /* Init Functions */
@@ -46,15 +43,24 @@ void init_adc1();
 #define ADC_MIN   0      // empirical         (≈ left / bottom edge)
 #define ADC_MAX  4096      // empirical         (≈ right / top  edge)
 
-#define ADC_MID  ((ADC_MIN + ADC_MAX) / 2)   // ≈ 1962
-#define ADC_SPAN (ADC_MAX - ADC_MIN)         // ≈ 3675
+#define ADC_MID  2052.8 // ((ADC_MIN + ADC_MAX) / 2) | Actual value was measured with serial plotter
+#define ADC_SPAN (ADC_MAX - ADC_MIN)         // ≈ 3675 // actual span of adc
 
+uint16_t rawX, rawY;
+float    u_x,    u_y;
+bool    newData;
 
+typedef struct // EMA filter Struct
+{ float a, out; }
+IFX_EMA;
+
+IFX_EMA ema_x, ema_y; //EMA filters
 
 int main() {
 	init_clks();
 	init_LPUART1();
 	init_adc1();
+	balance_timer();
 
 	uint16_t x = 0;
 	uint16_t y =0;
@@ -62,41 +68,50 @@ int main() {
 	float posX = 0;
 	float posY = 0;
 
+	ema_x.a   = 0.5f;
+	ema_x.out = ADC_MID; //Initial X[0]
+	ema_y.a   = 0.5f;
+	ema_y.out = ADC_MID; //Initial Y[0]
+
 	//linePattern      (50.0f,  -50.0f, 500, 3);
 
-
 	while (1)	{
-
-		get_xy(&x, &y);
-
-		posX = 200 * ((float)x - ADC_MID) / ADC_SPAN;
-		posY = 200 * ((float)y - ADC_MID) / ADC_SPAN;
+		//
+		//		posX = 200 * ((float)x - ADC_MID) / ADC_SPAN;
+		//		posY = 200 * ((float)y - ADC_MID) / ADC_SPAN;
 
 		//		float x_set = 50 *cosf(w * t);
 		//		float y_set = 50 * sinf(w * t);
 
 		//
-		//		/* Print to LPUART 1 921600 baud rate */
-		//		char str[80] = "$";
-		//		char src[40];
-		//		sprintf(src, "%d %d", x, y);
-		//		strcat(str, src);
-		//		strcat(str, ";");
-		//		txLPUART1(str);
+		/* Print to LPUART 1 921600 baud rate */
 
+				if (newData) {
+
+					float printUX = u_x*100 + ADC_MID;
+					float printUY = u_y*100 + ADC_MID;
+					newData = false;
+					char str[80] = "$";
+					char src[40];
+					sprintf(src, "%d " , rawY);
+					strcat(str, src);
+					strcat(str, ";");
+					txLPUART1(str);
+					txLPUART1(src);             // one atomic write
+				}
 		//	    linePattern      (50.0f,  -50.0f, 200, 3);
 
-				float u_x = pid_x(posX);
-				float u_y = pid_y(posY);
-
-				uint32_t dutyX = (uint32_t)(u_x + 90.0f);   // –45→45  →  45→135 deg
-				uint32_t dutyY = (uint32_t)(u_y + 90.0f);   // –45→45  →  45→135 deg
-
-				pwm_blue_x(dutyX);
-				pwm_green_y(dutyY);
+		//				float u_x = pid_x(posX);
+		//				float u_y = pid_y(posY);
 		//
-		//		t += 0.05;
-				delay_ms(50);
+		//				uint32_t angleX = (uint32_t)(u_x + 90.0f);   // –45→45  →  45→135 deg
+		//				uint32_t angleY = (uint32_t)(u_y + 90.0f);   // –45→45  →  45→135 deg
+		//
+		//				pwm_blue_x(angleX);
+		//				pwm_green_y(angleY);
+		//		//
+		//		//		t += 0.05;
+		//				delay_ms(50);
 
 	}
 	return 1;
@@ -149,39 +164,48 @@ void pwm_green_y(uint32_t degrees){
 	TIM3->CR1|= 1; 					// enable the timer
 }
 
-//void balance_timer(){
-//	bitset(RCC-> APB1ENR1, 0); //Enables timer 2
-//	TIM2->PSC |= 160 - 1; 			// divide clock speed by 160
-//	TIM2->ARR = 5000 - 1; 			// set the auto load register
-//	TIM2->CNT = 0; 					// reset counter current value
-//	TIM2->CR1|= 1;
-//	while(bitcheck(TIM2->SR,0)==0); //watches for Update Interrupt Flag and stalls
-//	bitclear(TIM2->SR, 0); //clears the bit to reset timer
-//
-//	NVIC_SetPriority(TIM2_IRQn, 1);
-//	NVIC_EnableIRQ(TIM2_IRQn);
-//}
+static inline float IFX_EMA_Update(IFX_EMA *f, float in) {
+	// aplha aleady set
+	f->out = f->a*in + (1.0f - f->a)*f->out; //EMA equation
+	return f->out;
+}
 
-//void TIM2_IRQHandler(){
-//	if (TIM2->SR & TIM_SR_UIF) {
-//		TIM2->SR = 0;  // clear interrupt flag
-//
-//		// 1) read & scale
-//		uint16_t rawX, rawY;
-//		get_xy(&rawX, &rawY);
-//		float posX = 200*((float)rawX - ADC_MID)/ADC_SPAN;
-//		float posY = 200*((float)rawY - ADC_MID)/ADC_SPAN;
-//
-//		// 2) PID on current global setpoints
-//		float u_x = pid_x(posX );
-//		float u_y = pid_y(posY );
-//
-//		// 3) drive servos
-//		pwm_blue_x(  (uint32_t)(u_x + 90.0) );
-//		pwm_green_y((uint32_t)(u_y + 90.0) );
-//
-//	}
-//}
+void balance_timer(){
+	bitset(RCC-> APB1ENR1, 0); //Enables timer 2
+	TIM2->PSC |= 160 - 1; 			// divide clock speed by 160
+	TIM2->ARR = 5000 - 1; 			// set the auto load register
+	TIM2->CNT = 0; 					// reset counter current value
+	TIM2->DIER |= 1;
+	TIM2->CR1|= 1;
+
+	NVIC_SetPriority(TIM2_IRQn, 1); // set prio
+	NVIC_EnableIRQ(TIM2_IRQn); //enable interrupt
+}
+
+void TIM2_IRQHandler(){
+	if (TIM2->SR & TIM_SR_UIF) {
+		TIM2->SR = 0;  // clear interrupt flag
+
+		// 1) read, filter, & scale
+		get_xy(&rawX, &rawY);
+		float filtX = IFX_EMA_Update(&ema_x, (float)rawX);
+		float filtY = IFX_EMA_Update(&ema_y, (float)rawY);
+
+		float posX = 200*((float)filtX - ADC_MID)/ADC_SPAN;
+		float posY = 200*((float)filtY - ADC_MID)/ADC_SPAN;
+
+		// 2) PID on current global setpoints
+		u_x = pid_x(posX );
+		u_y = pid_y(posY );
+
+		// 3) drive servos
+		pwm_blue_x((uint32_t)(u_x + 90.0) );
+		pwm_green_y((uint32_t)(u_y + 90.0) );
+
+		newData = true;
+	}
+}
+
 float pid_x(float currentX){
 	/* Current Error - Proportional term (desired - where we are) */
 
@@ -201,8 +225,8 @@ float pid_x(float currentX){
 
 	/* PID control variables */
 	float Kp=0.20;
-	float Ki=0.15;
-	float Kd=0.07;
+	float Ki=0.11;
+	float Kd=0.06;
 	float T =0.05;
 	float u = 0;
 	u = Kp * e + Ki * (totalError * T) + Kd * (deltaError / T);
@@ -223,7 +247,6 @@ float pid_y(float currentY){
 	/* Accumulated Error - Integral term */
 	totalError += e;
 
-
 	/* Difference of Error - Derivative term */
 	float deltaError = e - previousError;
 
@@ -232,8 +255,8 @@ float pid_y(float currentY){
 
 	/* PID control variables */
 	float Kp=0.20;
-	float Ki=0.15;
-	float Kd=0.07;
+	float Ki=0.11;
+	float Kd=0.06;
 	float T =0.05;
 	float u = 0;
 	u = Kp * e + Ki * (totalError * T) + Kd * (deltaError / T);
@@ -242,7 +265,6 @@ float pid_y(float currentY){
 	if(u < -30 ) u = -30;
 
 	return u;
-
 }
 
 void linePattern(float rx, float ry, int wait_ms, int cycles) {
@@ -400,9 +422,3 @@ void init_adc1() {
 
 	while (bitcheck(ADC1->ISR, 0) == 0);	// wait until ADC is ready
 }
-
-
-
-
-
-
